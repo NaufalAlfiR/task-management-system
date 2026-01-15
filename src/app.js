@@ -130,6 +130,12 @@ function setupAuthEventListeners() {
   if (refreshTasks) {
     refreshTasks.addEventListener("click", () => app.taskView.refresh());
   }
+
+  // Category filter buttons
+  const categoryButtons = document.querySelectorAll(".category-btn");
+  categoryButtons.forEach((btn) => {
+    btn.addEventListener("click", handleCategoryFilter);
+  });
 }
 
 /**
@@ -443,4 +449,30 @@ if (typeof module !== "undefined" && module.exports) {
     handleRegister,
     app,
   };
+}
+
+/**
+ * Handle category filter changes
+ */
+function handleCategoryFilter(event) {
+  // Pake currentTarget biar kalau di dalem button ada icon, tetep aman
+  const btn = event.currentTarget;
+  const category = btn.dataset.category;
+
+  // 1. Update active category button
+  document.querySelectorAll(".category-btn").forEach((b) => {
+    b.classList.remove("active");
+  });
+  btn.classList.add("active");
+
+  // 2. Clear other filters (Biar gak bentrok sama filter status)
+  document.querySelectorAll(".filter-btn").forEach((b) => {
+    b.classList.remove("active");
+  });
+
+  // 3. Render tasks (VERSI MVC)
+  // Kita suruh TaskView yang kerja, bukan manggil renderTaskList
+  if (app.taskView) {
+    app.taskView.filterByCategory(category);
+  }
 }

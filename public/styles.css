@@ -128,6 +128,17 @@ body {
   }
 }
 
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 /* Main Content */
 .main-content {
   padding: 2rem;
@@ -269,9 +280,9 @@ section h2 {
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   text-decoration: none;
   text-transform: uppercase;
   display: inline-flex;
@@ -383,6 +394,22 @@ section h2 {
   background-color: #c82333;
 }
 
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Loading state untuk buttons */
+.btn.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn.loading::after {
+  content: "...";
+  animation: dots 1.5s steps(4, end) infinite;
+}
+
 /* Search dan Filter */
 .search-filter-section {
   background: #f8f9fa;
@@ -481,8 +508,8 @@ section h2 {
 }
 
 .task-item:hover {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
 }
 
 .task-item.priority-urgent {
@@ -838,6 +865,33 @@ section h2 {
   color: #667eea;
 }
 
+/* Better priority badges */
+.task-priority {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Improve form inputs */
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  outline: none;
+}
+
 /* Footer */
 .app-footer {
   background-color: #f8f9fa;
@@ -849,6 +903,25 @@ section h2 {
 
 .app-footer p {
   margin: 0.5rem 0;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes dots {
+  0%,
+  20% {
+    content: ".";
+  }
+  40% {
+    content: "..";
+  }
+  60%,
+  100% {
+    content: "...";
+  }
 }
 
 /* Responsive Design */

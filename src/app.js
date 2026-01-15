@@ -476,3 +476,7 @@ function handleCategoryFilter(event) {
     app.taskView.filterByCategory(category);
   }
 }
+
+// Search functionality
+// Bug fix
+// Work in progress

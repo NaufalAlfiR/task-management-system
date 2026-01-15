@@ -292,7 +292,9 @@ section h2 {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: #667eea;
+  font-weight: 600;
+  border-radius: 8px;
   color: white;
 }
 
@@ -303,6 +305,7 @@ section h2 {
 
 .btn-secondary {
   background-color: #6c757d;
+  border-radius: 8px;
   color: white;
 }
 

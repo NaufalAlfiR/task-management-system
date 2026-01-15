@@ -479,3 +479,4 @@ function handleCategoryFilter(event) {
 
 // Search functionality
 // Bug fix
+// Work in progress

@@ -1,69 +1,150 @@
-# Task Management System - Starter Project
+# Task Management System
 
-Welcome to the Software Engineering Shortcourse! This is your starter project that you'll build upon over the next 5 days.
+A collaborative task management application built with vanilla JavaScript, demonstrating software engineering principles and team development practices.
 
-## Quick Start
+## 🚀 Features
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+- ✅ **Task Management**: Create, edit, delete, and organize tasks
+- 🏷️ **Categories**: Organize tasks by categories (Work, Personal, Study, etc.)
+- 🔍 **Search & Filter**: Find tasks quickly with advanced filtering
+- 👥 **Multi-User Support**: User management and authentication
+- 📊 **Analytics**: Task statistics and progress tracking
+- 🧪 **Testing**: Comprehensive test suite with Jest
+- 🔄 **Version Control**: Git workflow with feature branches
 
-2. **Start the development server:**
-   ```bash
-   npm start
-   ```
+## 🛠️ Getting Started
 
-3. **Open your browser:**
-   Navigate to `http://localhost:3000`
+### Prerequisites
 
-That's it! You should see a welcome page with the course outline.
+- Node.js 14+ installed
+- Git installed and configured
+- Modern web browser
 
-## Project Structure
+### Installation
 
-```
-starter-project/
-├── package.json          # Project configuration and dependencies
-├── server.js            # Basic development server
-├── README.md            # This file
-├── public/              # Static files served by the web server
-│   ├── index.html       # Main HTML page
-│   └── styles.css       # Basic styling
-├── src/                 # Source code (you'll add files here)
-│   ├── app.js          # Main application entry point (currently empty)
-│   ├── models/         # Data models (Day 1+)
-│   ├── services/       # Business logic (Day 1+)
-│   └── utils/          # Utility functions (Day 1+)
-└── tests/              # Test files (Day 3+)
+```bash
+# Clone the repository
+git clone https://github.com/your-username/task-management-system.git
+cd task-management-system
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
 ```
 
-## What You'll Build
+Visit http://localhost:3000 to see the application.
 
-Over the 5-day course, you'll transform this simple starter into a full-featured task management application:
+### Development Commands
 
-- **Day 1:** Basic task management with MVC structure
-- **Day 2:** Enhanced design patterns and requirements analysis
-- **Day 3:** Comprehensive testing with Jest
-- **Day 4:** Git workflow and collaboration features
-- **Day 5:** Production deployment and best practices
+```bash
+npm start          # Start development server
+npm test           # Run test suite
+npm run test:watch # Run tests in watch mode
+npm run test:coverage # Run tests with coverage report
+```
 
-## Available Scripts
+## 🏗️ Architecture
 
-- `npm start` - Start the development server
-- `npm test` - Run tests (Day 3+)
-- `npm run lint` - Check code quality (Day 3+)
-- `npm run format` - Format code with Prettier (Day 3+)
+This project demonstrates key software engineering principles:
 
-## Getting Help
+- **MVC Pattern**: Separation of Model, View, and Controller
+- **Repository Pattern**: Data access abstraction
+- **Dependency Injection**: Loose coupling between components
+- **Test-Driven Development**: Comprehensive test coverage
+- **Version Control**: Git workflow with feature branches
 
-- Check the course materials for each day
-- Ask your instructor if you get stuck
-- Review the troubleshooting guides in the course documentation
+### Project Structure
 
-## Next Steps
+```
+src/
+├── models/          # Data models and business logic
+├── controllers/     # Request handling and coordination
+├── repositories/    # Data access layer
+├── services/        # Business logic services
+└── utils/           # Utility functions
 
-1. Make sure `npm start` works and you can see the welcome page
-2. Familiarize yourself with the project structure
-3. Wait for Day 1 materials to begin implementation
+tests/
+├── models/          # Model unit tests
+├── controllers/     # Controller integration tests
+├── repositories/    # Repository tests
+└── helpers/         # Test utilities
 
-Happy coding! 🚀
+public/
+├── index.html       # Main HTML file
+├── styles.css       # Application styles
+└── assets/          # Static assets
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Quick Start for Contributors
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes and add tests
+4. Commit: `git commit -m "feat: add amazing feature"`
+5. Push: `git push origin feature/amazing-feature`
+6. Create a Pull Request
+
+## 🧪 Testing
+
+We maintain high test coverage to ensure code quality:
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test file
+npm test User.test.js
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+### Test Structure
+
+- **Unit Tests**: Test individual components in isolation
+- **Integration Tests**: Test component interactions
+- **Test Utilities**: Shared test helpers and factories
+
+## 📚 Learning Objectives
+
+This project is designed for software engineering education:
+
+- **Day 1**: Basic structure and MVC pattern
+- **Day 2**: Requirements analysis and design patterns
+- **Day 3**: Testing and quality assurance
+- **Day 4**: Version control and collaboration
+- **Day 5**: Deployment and production practices
+
+## 🔧 Technology Stack
+
+- **Frontend**: Vanilla JavaScript, HTML5, CSS3
+- **Backend**: Node.js with Express (development server)
+- **Testing**: Jest with jsdom
+- **Version Control**: Git with GitHub
+- **Development**: ESLint, Prettier for code quality
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Software Engineering Course instructors and students
+- Open source community for tools and inspiration
+- Contributors who help improve this project
+
+## 📞 Support
+
+- Create an issue for bug reports or feature requests
+- Check existing issues before creating new ones
+- Contact maintainers for questions
+
+---
+
+**Happy Coding!** 🎉

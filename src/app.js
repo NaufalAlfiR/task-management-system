@@ -476,4 +476,6 @@ function handleCategoryFilter(event) {
     app.taskView.filterByCategory(category);
   }
 }
+
 // Search functionality
+// Bug fix

@@ -114,6 +114,38 @@ class TaskView {
   }
 
   /**
+   * Filter tasks by category
+   */
+  filterByCategory(category) {
+    if (!this.taskList) return;
+
+    // 1. Ambil data dari Controller
+    const response = this.taskController.getTasksByCategory(category);
+
+    if (!response.success) {
+      this.showMessage(response.error, "error");
+      return;
+    }
+
+    const tasks = response.data;
+    this.currentFilter = "category";
+
+    if (tasks.length === 0) {
+      this.taskList.innerHTML = `
+          <div class="empty-state">
+              <p>No tasks found in ${category} category</p>
+              <small>Create your first task using the form above</small>
+          </div>
+      `;
+      return;
+    }
+
+    const tasksHTML = tasks.map((task) => this._createTaskHTML(task)).join("");
+    this.taskList.innerHTML = tasksHTML;
+    this._setupTaskEventListeners();
+  }
+
+  /**
    * Render task statistics
    */
   renderStats() {
@@ -146,7 +178,8 @@ class TaskView {
                 </div>
                 <div class="stat-item priority-high">
                     <span class="stat-number">${
-                      stats.byPriority.high || 0
+                      (stats.byPriority.high || 0) +
+                      (stats.byPriority.urgent || 0)
                     }</span>
                     <span class="stat-label">High Priority</span>
                 </div>
@@ -190,6 +223,7 @@ class TaskView {
   refresh() {
     this.renderTasks();
     this.renderStats();
+    this.renderCategoryStats();
   }
 
   /**
@@ -379,112 +413,162 @@ class TaskView {
   }
 
   /**
+   * Render Category Statistics (Fitur Day 4)
+   */
+  renderCategoryStats() {
+    const statsContainer = document.getElementById("categoryStats");
+    if (!statsContainer) return;
+
+    // 1. Ambil data Mateng dari Controller (Gak perlu hitung manual lagi)
+    const response = this.taskController.getCategoryStats();
+    if (!response.success) return;
+
+    const categoryStats = response.data.byCategory;
+
+    // 2. Render HTML (Logic sama kayak panduan)
+    const statsHTML = Object.entries(categoryStats)
+      .filter(([category, stats]) => stats.total > 0)
+      .map(([category, stats]) => {
+        const displayNames = {
+          work: "Work",
+          personal: "Personal",
+          study: "Study",
+          health: "Health",
+          finance: "Finance",
+          shopping: "Shopping",
+          other: "Other",
+        };
+
+        return `
+                <div class="category-stat-item">
+                    <h4>${displayNames[category] || category}</h4>
+                    <div class="stat-number">${stats.total}</div>
+                    <small>${stats.completed} completed</small>
+                </div>
+            `;
+      })
+      .join("");
+
+    if (statsHTML) {
+      statsContainer.innerHTML = `
+            <h3>Tasks by Category</h3>
+            <div class="category-stats">${statsHTML}</div>
+        `;
+    }
+  }
+
+  /**
    * Create HTML for single task
    */
   _createTaskHTML(task) {
+    // 1. Setup Class CSS
     const priorityClass = `priority-${task.priority}`;
-    const statusClass = `status-${task.status}`;
+    // Cek property isCompleted (sesuai Model lu)
+    const completedClass = task.isCompleted ? "completed" : "";
     const overdueClass = task.isOverdue ? "overdue" : "";
+    const categoryClass = `category-${task.category}`; // Class Kategori Baru
 
-    // Format dates
+    // 2. Format Tanggal
     const createdDate = new Date(task.createdAt).toLocaleDateString("id-ID");
     const dueDate = task.dueDate
       ? new Date(task.dueDate).toLocaleDateString("id-ID")
       : null;
 
-    // Get assignee name
-    let assigneeName = "Unknown";
-    if (task.assigneeId) {
-      const userResponse = this.userController.getUserById(task.assigneeId);
-      if (userResponse.success) {
-        assigneeName = userResponse.data.fullName || userResponse.data.username;
+    // 3. Mapping Nama Kategori (Fitur Day 4)
+    const categoryDisplayNames = {
+      work: "Work",
+      personal: "Personal",
+      study: "Study",
+      health: "Health",
+      finance: "Finance",
+      shopping: "Shopping",
+      other: "Other",
+    };
+    const categoryDisplay =
+      categoryDisplayNames[task.category] || task.category;
+
+    // 4. Cek Assignee (Fitur Day 3 lu)
+    let assigneeInfo = "";
+    if (task.assigneeId && this.userController) {
+      const userResp = this.userController.getUserById(task.assigneeId);
+      if (userResp.success) {
+        assigneeInfo = `<small>Assigned to: ${userResp.data.fullName}</small>`;
       }
     }
 
+    // 5. Render HTML (Tanpa onclick, pake data-attributes)
     return `
-            <div class="task-item ${priorityClass} ${statusClass} ${overdueClass}" data-task-id="${
+        <div class="task-item ${priorityClass} ${completedClass} ${overdueClass}" data-task-id="${
       task.id
     }">
-                <div class="task-content">
-                    <div class="task-header">
-                        <h3 class="task-title">${this._escapeHtml(
-                          task.title
-                        )}</h3>
-                        <div class="task-badges">
-                            <span class="task-priority badge-${
-                              task.priority
-                            }">${task.priority}</span>
-                            <span class="task-category badge-category">${
-                              task.category
-                            }</span>
-                            <span class="task-status badge-status">${
-                              task.status
-                            }</span>
-                        </div>
-                    </div>
+            <div class="task-content">
+                <div class="task-header">
+                    <h3 class="task-title">${this._escapeHtml(task.title)}</h3>
                     
-                    ${
-                      task.description
-                        ? `<p class="task-description">${this._escapeHtml(
-                            task.description
-                          )}</p>`
-                        : ""
-                    }
-                    
-                    ${
-                      task.tags.length > 0
-                        ? `
-                        <div class="task-tags">
-                            ${task.tags
-                              .map(
-                                (tag) =>
-                                  `<span class="tag">${this._escapeHtml(
-                                    tag
-                                  )}</span>`
-                              )
-                              .join("")}
-                        </div>
-                    `
-                        : ""
-                    }
-                    
-                    <div class="task-meta">
-                        <small>Dibuat: ${createdDate}</small>
-                        ${
-                          dueDate
-                            ? `<small class="${
-                                task.isOverdue ? "overdue-text" : ""
-                              }">Due: ${dueDate}</small>`
-                            : ""
-                        }
-                        ${
-                          task.assigneeId !== task.ownerId
-                            ? `<small>Assigned to: ${assigneeName}</small>`
-                            : ""
-                        }
-                        ${
-                          task.estimatedHours > 0
-                            ? `<small>Estimasi: ${task.estimatedHours}h</small>`
-                            : ""
-                        }
+                    <div class="task-badges">
+                        <span class="task-priority badge-${task.priority}">${
+      task.priority
+    }</span>
+                        
+                        <span class="task-category ${categoryClass}">${categoryDisplay}</span>
+                        
+                        <span class="task-status badge-status">${
+                          task.status
+                        }</span>
                     </div>
                 </div>
                 
-                <div class="task-actions">
-                    <button class="btn btn-toggle" title="${
-                      task.isCompleted ? "Mark incomplete" : "Mark complete"
-                    }">
-                        ${task.isCompleted ? "↶" : "✓"}
-                    </button>
-                    <button class="btn btn-edit" title="Edit task">
-                        ✏️
-                    </button>
-                    <button class="btn btn-delete" title="Delete task">
-                        🗑️
-                    </button>
+                ${
+                  task.description
+                    ? `<p class="task-description">${this._escapeHtml(
+                        task.description
+                      )}</p>`
+                    : ""
+                }
+                
+                <div class="task-tags">
+                    ${
+                      task.tags && task.tags.length > 0
+                        ? task.tags
+                            .map(
+                              (tag) =>
+                                `<span class="tag">${this._escapeHtml(
+                                  tag
+                                )}</span>`
+                            )
+                            .join("")
+                        : ""
+                    }
+                </div>
+                
+                <div class="task-meta">
+                    <small>Created: ${createdDate}</small>
+                    ${
+                      dueDate
+                        ? `<small class="${
+                            task.isOverdue ? "overdue-text" : ""
+                          }">Due: ${dueDate}</small>`
+                        : ""
+                    }
+                    ${assigneeInfo}
                 </div>
             </div>
-        `;
+            
+            <div class="task-actions">
+                <button class="btn btn-toggle" title="${
+                  task.isCompleted ? "Mark incomplete" : "Mark complete"
+                }">
+                    ${task.isCompleted ? "↶" : "✓"}
+                </button>
+                <button class="btn btn-edit" title="Edit task">
+                    ✏️
+                </button>
+                <button class="btn btn-delete" title="Delete task">
+                    🗑️
+                </button>
+            </div>
+        </div>
+    `;
   }
 
   /**

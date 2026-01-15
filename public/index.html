@@ -79,13 +79,14 @@
               </div>
 
               <div class="form-group">
-                <label for="taskCategory">Kategori</label>
+                <label for="taskCategory">Category</label>
                 <select id="taskCategory" name="category">
                   <option value="personal">Personal</option>
-                  <option value="work">Work</option>
-                  <option value="study">Study</option>
-                  <option value="health">Health</option>
-                  <option value="finance">Finance</option>
+                  <option value="work">Work & Business</option>
+                  <option value="study">Study & Learning</option>
+                  <option value="health">Health & Fitness</option>
+                  <option value="finance">Finance & Money</option>
+                  <option value="shopping">Shopping</option>
                   <option value="other">Other</option>
                 </select>
               </div>
@@ -216,16 +217,47 @@
                 </div>
               </div>
 
-              <div class="filter-group">
-                <h4>Kategori</h4>
-                <div class="filter-buttons">
-                  <button class="filter-btn" data-filter="work">Work</button>
-                  <button class="filter-btn" data-filter="personal">
+              <div class="category-filters">
+                <h3>Filter by Category</h3>
+                <div class="category-buttons">
+                  <button
+                    class="category-btn btn-outline"
+                    data-category="personal"
+                  >
                     Personal
                   </button>
-                  <button class="filter-btn" data-filter="study">Study</button>
-                  <button class="filter-btn" data-filter="health">
+                  <button class="category-btn btn-outline" data-category="work">
+                    Work
+                  </button>
+                  <button
+                    class="category-btn btn-outline"
+                    data-category="study"
+                  >
+                    Study
+                  </button>
+                  <button
+                    class="category-btn btn-outline"
+                    data-category="health"
+                  >
                     Health
+                  </button>
+                  <button
+                    class="category-btn btn-outline"
+                    data-category="finance"
+                  >
+                    Finance
+                  </button>
+                  <button
+                    class="category-btn btn-outline"
+                    data-category="shopping"
+                  >
+                    Shopping
+                  </button>
+                  <button
+                    class="category-btn btn-outline"
+                    data-category="other"
+                  >
+                    Other
                   </button>
                 </div>
               </div>

@@ -271,8 +271,9 @@ section h2 {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   text-decoration: none;
+  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -467,8 +468,8 @@ section h2 {
 }
 
 .task-item {
-  background: white;
-  border: 1px solid #e9ecef;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border: 1px solid #e1e8ed;
   border-radius: 12px;
   padding: 1.5rem;
   display: flex;

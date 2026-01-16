@@ -11,6 +11,7 @@ class TaskView {
   constructor(taskController, userController) {
     this.taskController = taskController;
     this.userController = userController;
+    this.editingTaskId = null;
 
     // DOM elements
     this.taskForm = null;
@@ -86,12 +87,28 @@ class TaskView {
   renderTasks() {
     if (!this.taskList) return;
 
-    // Get tasks dari controller
-    const response = this.taskController.getTasks({
-      status: this.currentFilter === "all" ? undefined : this.currentFilter,
+    // 1. Siapkan opsi filter dasar
+    const filterOptions = {
       sortBy: this.currentSort,
       sortOrder: this.currentSortOrder,
-    });
+    };
+
+    // 2. Logika pemisahan: Apakah ini Filter Status atau Filter Prioritas?
+    if (this.currentFilter !== "all") {
+      // Daftar prioritas yang ada di sistem lu
+      const listPrioritas = ["urgent", "high", "medium", "low"];
+
+      if (listPrioritas.includes(this.currentFilter)) {
+        // Jika yang diklik adalah prioritas, masukkan ke kolom 'priority'
+        filterOptions.priority = this.currentFilter;
+      } else {
+        // Jika bukan (seperti 'pending' atau 'completed'), masukkan ke 'status'
+        filterOptions.status = this.currentFilter;
+      }
+    }
+
+    // 3. Panggil controller dengan opsi yang sudah diperbaiki
+    const response = this.taskController.getTasks(filterOptions);
 
     if (!response.success) {
       this.showMessage(response.error, "error");
@@ -231,34 +248,46 @@ class TaskView {
    */
   _handleTaskFormSubmit(event) {
     event.preventDefault();
-
     const formData = new FormData(event.target);
+
     const taskData = {
       title: formData.get("title")?.trim(),
       description: formData.get("description")?.trim(),
-      category: formData.get("category") || "personal",
-      priority: formData.get("priority") || "medium",
+      category: formData.get("category"),
+      priority: formData.get("priority"),
       dueDate: formData.get("dueDate") || null,
-      estimatedHours: parseFloat(formData.get("estimatedHours")) || 0,
       tags: formData.get("tags")
         ? formData
             .get("tags")
             .split(",")
-            .map((tag) => tag.trim())
+            .map((t) => t.trim())
         : [],
     };
 
-    // Handle assignee
-    const assigneeId = formData.get("assigneeId");
-    if (assigneeId && assigneeId !== "self") {
-      taskData.assigneeId = assigneeId;
-    }
+    let response;
 
-    const response = this.taskController.createTask(taskData);
+    if (this.editingTaskId) {
+      // MODE UPDATE
+      response = this.taskController.updateTask(this.editingTaskId, taskData);
+    } else {
+      // MODE CREATE (Lama)
+      response = this.taskController.createTask(taskData);
+    }
 
     if (response.success) {
       this.showMessage(response.message, "success");
+
+      // Panggil fungsi pembersih
+      this._handleCancelEdit();
+
+      // Reset Mode Edit
+      this.editingTaskId = null;
       event.target.reset();
+
+      // Kembalikan teks tombol
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.textContent = "Add Task";
+
       this.refresh();
     } else {
       this.showMessage(response.error, "error");
@@ -328,10 +357,22 @@ class TaskView {
    * Handle clear all tasks
    */
   _handleClearAllTasks() {
-    if (confirm("Apakah Anda yakin ingin menghapus semua task?")) {
-      // Implementasi clear all tasks
-      // Untuk sekarang, kita refresh saja
-      this.refresh();
+    if (
+      confirm(
+        "Apakah Anda yakin ingin menghapus semua task? Hati-hati, ini gak bisa balik lagi!"
+      )
+    ) {
+      // 1. Panggil fungsi yang baru kita buat di controller
+      const response = this.taskController.deleteAllTasks();
+
+      if (response.success) {
+        // 2. Kasih tau user kalau berhasil
+        this.showMessage(response.message, "success");
+        // 3. Update tampilan biar kosong
+        this.refresh();
+      } else {
+        this.showMessage(response.error, "error");
+      }
     }
   }
 
@@ -407,9 +448,67 @@ class TaskView {
    * Handle task edit
    */
   _handleTaskEdit(taskId) {
-    // Implementasi edit task
-    // Untuk sekarang, kita tampilkan alert saja
-    alert("Edit task feature akan diimplementasikan nanti");
+    const response = this.taskController.getTask(taskId);
+
+    if (response.success) {
+      const task = response.data;
+
+      // 1. Isi form (sama kayak sebelumnya)
+      const form = this.taskForm;
+      form.querySelector('[name="title"]').value = task.title;
+      form.querySelector('[name="description"]').value = task.description || "";
+      form.querySelector('[name="category"]').value = task.category;
+      form.querySelector('[name="priority"]').value = task.priority;
+      form.querySelector('[name="dueDate"]').value = task.dueDate || "";
+
+      this.editingTaskId = taskId;
+
+      // 2. Ubah tombol submit
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.textContent = "Update Task 🚀";
+
+      // 3. TAMBAHKAN TOMBOL CANCEL (Jika belum ada)
+      if (!form.querySelector(".btn-cancel")) {
+        const cancelBtn = document.createElement("button");
+        cancelBtn.type = "button"; // Biar gak trigger submit
+        cancelBtn.className = "btn btn-secondary btn-cancel";
+        cancelBtn.textContent = "Cancel";
+        cancelBtn.style.marginLeft = "8px";
+
+        // Kasih aksi klik buat batalin
+        cancelBtn.addEventListener("click", () => {
+          this._handleCancelEdit(); // Bersihin form
+          this.showMessage("Edit dibatalkan", "info"); // Tampilkan notif HANYA di sini
+        });
+
+        submitBtn.parentNode.appendChild(cancelBtn);
+      }
+
+      form.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
+  /**
+   * cancel task edit
+   */
+  _handleCancelEdit() {
+    // 1. Reset ID yang lagi diedit
+    this.editingTaskId = null;
+
+    // 2. Kosongin form
+    this.taskForm.reset();
+
+    // 3. Balikin tulisan tombol submit
+    const submitBtn = this.taskForm.querySelector('button[type="submit"]');
+    submitBtn.textContent = "Add Task";
+
+    // 4. Hapus tombol Cancel-nya
+    const cancelBtn = this.taskForm.querySelector(".btn-cancel");
+    if (cancelBtn) {
+      cancelBtn.remove();
+    }
+
+    // this.showMessage("Edit dibatalkan", "info");
   }
 
   /**

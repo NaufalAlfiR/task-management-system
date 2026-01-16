@@ -110,6 +110,15 @@ describe("TaskController", () => {
       expect(response.data.title).toBe(testTask.title);
     });
 
+    test("should filter tasks by priority", () => {
+      taskController.createTask({ title: "Urgent Task", priority: "urgent" });
+
+      const response = taskController.getTasks({ priority: "urgent" });
+
+      expect(response.data.length).toBe(1);
+      expect(response.data[0].priority).toBe("urgent");
+    });
+
     test("should fail to get non-existent task", () => {
       // Act
       const response = taskController.getTask("non-existent-id");
@@ -226,6 +235,25 @@ describe("TaskController", () => {
       // Assert
       TestAssertions.assertControllerResponse(response, false);
       expect(response.error).toBe("Task tidak ditemukan");
+    });
+  });
+
+  describe("Clear All Functionality", () => {
+    test("should delete all tasks for current user", () => {
+      // Setup: Bikin 2 task
+      taskController.createTask({ title: "Task A" });
+      taskController.createTask({ title: "Task B" });
+
+      // Act
+      const response = taskController.deleteAllTasks();
+
+      // Assert
+      expect(response.success).toBe(true);
+      expect(response.message).toContain("berhasil dibersihkan");
+
+      // Pastikan sisa task adalah 0
+      const checkTasks = taskController.getTasks();
+      expect(checkTasks.data.length).toBe(0);
     });
   });
 

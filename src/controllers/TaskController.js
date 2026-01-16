@@ -282,6 +282,34 @@ class TaskController {
   }
 
   /**
+   * Hapus semua task milik current user
+   */
+  deleteAllTasks() {
+    try {
+      if (!this.currentUser) {
+        return { success: false, error: "User harus login terlebih dahulu" };
+      }
+
+      // 1. Ambil semua task milik user ini
+      const userTasks = this.taskRepository.filter({
+        ownerId: this.currentUser.id,
+      });
+
+      // 2. Hapus satu per satu lewat repository
+      userTasks.forEach((task) => {
+        this.taskRepository.delete(task.id);
+      });
+
+      return {
+        success: true,
+        message: "Semua task berhasil dibersihkan! 🧹",
+      };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
    * Toggle status task (complete/incomplete)
    * @param {string} taskId - Task ID
    * @returns {Object} - Response dengan task yang diupdate

@@ -64,7 +64,34 @@ class TaskManagementServer {
     this.app.use(securityMiddleware.securityHeaders);
 
     // CORS
-    this.app.use(cors(securityMiddleware.corsConfig));
+    // --- UPDATE MULAI DARI SINI ---
+    // Logika CORS Manual (Anti-Crash)
+    const allowedOrigins = process.env.CORS_ORIGINS
+      ? process.env.CORS_ORIGINS.split(",")
+      : [];
+
+    this.app.use(
+      cors({
+        origin: (origin, callback) => {
+          // 1. Izinkan request tanpa origin (seperti Postman atau server-to-server)
+          if (!origin) return callback(null, true);
+
+          // 2. Cek apakah origin ada di daftar izin
+          if (
+            allowedOrigins.indexOf(origin) !== -1 ||
+            allowedOrigins.length === 0
+          ) {
+            callback(null, true);
+          } else {
+            // 3. JANGAN CRASH! Cukup log warning, tapi tolak requestnya baik-baik
+            console.warn(`Blocked by CORS: ${origin}`);
+            callback(new Error("Not allowed by CORS"));
+          }
+        },
+        credentials: true, // Izinkan cookie/session
+      })
+    );
+    // --- UPDATE SELESAI ---
 
     // Rate limiting
     this.app.use("/api/", securityMiddleware.rateLimiter);

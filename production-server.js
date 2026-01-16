@@ -796,11 +796,15 @@ class TaskManagementServer {
   }
 }
 
-// Export for use in other modules
-module.exports = TaskManagementServer;
+// --- VERCEL COMPATIBILITY FIX ---
 
-// Start server if this file is run directly
+// 1. Kita bikin dulu 'kue'-nya (Inisialisasi Server)
+const serverInstance = new TaskManagementServer();
+
+// 2. Kita kasih 'app' Express-nya ke Vercel
+module.exports = serverInstance.app;
+
+// 3. Kalau dijalankan di laptop (bukan Vercel), baru kita start port-nya manual
 if (require.main === module) {
-  const server = new TaskManagementServer();
-  server.start();
+  serverInstance.start();
 }
